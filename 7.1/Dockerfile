@@ -20,10 +20,11 @@ RUN apk add --no-cache --virtual .build-deps \
     pecl install imagick && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
+    pecl install -f pcov && \
     docker-php-ext-configure gd \
         --with-jpeg-dir=/usr/lib \
         --with-freetype-dir=/usr/include/freetype2 && \
-    docker-php-ext-enable imagick redis && \
+    docker-php-ext-enable imagick redis pcov && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd iconv intl mysqli \
