@@ -17,4 +17,4 @@ jobs:
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
-          DOCKERHUB_REPOSITORY: somosyampi/docker-php-fpm-alpine
+          DOCKERHUB_REPOSITORY: somosyampi/docker-php-fpm
