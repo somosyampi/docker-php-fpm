@@ -13,7 +13,7 @@ RUN apk add --no-cache --virtual .build-deps \
     apk add --no-cache \
         --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         --allow-untrusted \
-        curl git gnu-libiconv \
+        bind-tools curl git gnu-libiconv \
         imagemagick libsodium \
         libintl libzip-dev \
         icu shadow libmcrypt && \

@@ -10,7 +10,7 @@ RUN apk add --no-cache --virtual .build-deps \
         libpng-dev libsodium-dev libtool \
         libxml2-dev sqlite-dev && \
     apk add --no-cache \
-        curl git gnu-libiconv \
+        bind-tools curl git gnu-libiconv \
         imagemagick libsodium \
         libintl libzip-dev \
         icu shadow && \
