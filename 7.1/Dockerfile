@@ -11,7 +11,8 @@ RUN apk add --no-cache --virtual .build-deps \
         libpng-dev libsodium-dev libtool \
         libxml2-dev sqlite-dev libmcrypt-dev && \
     apk add --no-cache \
-        --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
+        --repository http://dl-3.alpinelinux.org/alpine/edge/testing \
+        # --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         --allow-untrusted \
         bind-tools curl git gnu-libiconv \
         imagemagick libsodium \
