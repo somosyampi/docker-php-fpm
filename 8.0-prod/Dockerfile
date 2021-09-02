@@ -15,7 +15,7 @@ RUN apk add --no-cache --virtual .build-deps \
         libintl libzip-dev \
         icu shadow && \
     pecl install -o -f redis && \
-    pecl install -f libsodium && \
+    pecl install -f libsodium libgomp && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \

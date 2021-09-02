@@ -15,7 +15,7 @@ RUN apk add --no-cache --virtual .build-deps \
         # --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         --allow-untrusted \
         bind-tools curl git gnu-libiconv \
-        imagemagick libsodium \
+        imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow libmcrypt && \
     pecl install imagick && \
