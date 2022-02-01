@@ -11,11 +11,11 @@ RUN apk add --no-cache --virtual .build-deps \
         libxml2-dev sqlite-dev && \
     apk add --no-cache \
         bind-tools curl git gnu-libiconv \
-        imagemagick libsodium \
+        imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
     pecl install -o -f redis && \
-    pecl install -f libsodium libgomp && \
+    pecl install -f libsodium && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \
