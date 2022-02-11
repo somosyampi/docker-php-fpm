@@ -32,5 +32,5 @@ jobs:
         
       run: |
         # Build a docker container and push it to ECR 
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ matrix.image }} -f ./${{ matrix.image }}/Dockerfile $ECR_REGISTRY/$ECR_REPOSITORY:${{ matrix.image }}
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ matrix.image }} ./${{ matrix.image }}/
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ matrix.image }}      
