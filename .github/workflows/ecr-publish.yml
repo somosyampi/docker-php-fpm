@@ -1,16 +1,14 @@
-name: Deploy to Amazon ECR
+name: Publish Docker image
 on:
   push:
     branches: aws 
-
 jobs:
   deploy:
     name: Build/push php-fpm ${{ matrix.image }} image
     runs-on: ubuntu-latest
      strategy:
-          matrix:
-            image: ['5.6', '7.1', '7.2', '7.3', '7.4', '7.4-wk', '8.0', '8.0-prod']
-
+       matrix:
+         image: ['5.6', '7.1', '7.2', '7.3', '7.4', '7.4-wk', '8.0', '8.0-prod']
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -35,5 +33,4 @@ jobs:
       run: |
         # Build a docker container and push it to ECR 
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:./${{ matrix.image }}/Dockerfile
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ matrix.image }}
-      
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ matrix.image }}      
