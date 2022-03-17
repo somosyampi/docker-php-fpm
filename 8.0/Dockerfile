@@ -23,13 +23,13 @@ RUN apk add --no-cache --virtual .build-deps \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/lib \
         --with-freetype=/usr/include/freetype2 && \
+    docker-php-ext-enable imagick mongodb redis && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd iconv intl mysqli \
         pdo pdo_mysql pcntl \
         soap tokenizer \
-        xml zip imagick sodium && \
-    docker-php-ext-enable imagick mongodb redis && \
+        xml zip imagick sodium && \    
     apk del -f .build-deps && \
     docker-php-source delete && \
     rm -rf /tmp/* /var/cache/apk/* && \
