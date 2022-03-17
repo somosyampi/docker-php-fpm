@@ -14,7 +14,8 @@ RUN apk add --no-cache --virtual .build-deps \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick mongodb && \
+    pecl install imagick  && \
+    pecl install mongodb && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
     git clone \
@@ -23,7 +24,8 @@ RUN apk add --no-cache --virtual .build-deps \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/lib \
         --with-freetype=/usr/include/freetype2 && \
-    docker-php-ext-enable imagick mongodb redis && \
+    docker-php-ext-enable imagick redis && \
+    docker-php-ext-enable mongodb && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd iconv intl mysqli \
