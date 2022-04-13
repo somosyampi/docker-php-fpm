@@ -23,10 +23,10 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
     apt-get -y autoremove && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /src && \
     ln -s /usr/sbin/php-fpm7.4 /usr/local/bin/php-fpm && \
-    mkdir -p /run/php
+    mkdir -p /run/php && rm -rf /var/cache/* && rm -rf /tmp/*
 
 COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer
-RUN composer global require hirak/prestissimo
+RUN composer global require hirak/prestissimo && composer clear-cache
 
 COPY 99-yampi.ini /etc/php/7.4/fpm/conf.d/99-yampi.ini
 COPY 99-www.conf /etc/php/7.4/fpm/pool.d/www.conf

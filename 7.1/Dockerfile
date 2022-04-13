@@ -33,10 +33,10 @@ RUN apk add --no-cache --virtual .build-deps \
         xml zip intl \
         mcrypt mbstring && \
     apk del -f .build-deps && \
-    cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
+    cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" && rm -rf /var/cache/* && rm -rf /tmp/*
 
 COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer
-RUN composer global require hirak/prestissimo
+RUN composer global require hirak/prestissimo && composer clear-cache
 
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
 COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf

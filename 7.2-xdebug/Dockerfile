@@ -28,9 +28,9 @@ RUN apk add --no-cache --virtual .build-deps \
         soap tokenizer \
         xml zip intl && \
     apk del -f .build-deps && \
-    cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
+    cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" && rm -rf /var/cache/* && rm -rf /tmp/*
 
-COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer && composer clear-cache
 RUN composer global require hirak/prestissimo
 
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini

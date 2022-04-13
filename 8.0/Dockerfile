@@ -35,9 +35,9 @@ RUN apk add --no-cache --virtual .build-deps \
     apk del -f .build-deps && \
     docker-php-source delete && \
     rm -rf /tmp/* /var/cache/apk/* && \
-    cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
+    cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" && rm -rf /var/cache/* && rm -rf /tmp/*
 
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer && composer clear-cache
 
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
 COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf
