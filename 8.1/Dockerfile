@@ -1,4 +1,4 @@
-FROM php:8.0-fpm-alpine3.13
+FROM php:8.1-fpm-alpine
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN apk add --no-cache --virtual .build-deps \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick  && \
+    pecl install imagick && \
     pecl install mongodb && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
@@ -28,10 +28,10 @@ RUN apk add --no-cache --virtual .build-deps \
     docker-php-ext-enable mongodb && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
-        gd iconv intl mysqli \
+        gd intl mysqli \
         pdo pdo_mysql pcntl \
-        soap tokenizer \
-        xml zip imagick sodium && \
+        soap xml zip \
+        imagick sodium && \
     apk del -f .build-deps && \
     docker-php-source delete && \
     rm -rf /tmp/* /var/cache/apk/* && \
