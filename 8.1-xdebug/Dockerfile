@@ -1,4 +1,4 @@
-FROM php:8.0-fpm-alpine3.13
+FROM php:8.1-fpm-alpine
 
 WORKDIR /app
 
@@ -14,8 +14,7 @@ RUN apk add --no-cache --virtual .build-deps \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick  && \
-    pecl install mongodb && \
+    pecl install xdebug && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
     git clone \
@@ -24,22 +23,20 @@ RUN apk add --no-cache --virtual .build-deps \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/lib \
         --with-freetype=/usr/include/freetype2 && \
-    docker-php-ext-enable imagick redis && \
-    docker-php-ext-enable mongodb && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
-        gd iconv intl mysqli \
+        gd intl mysqli \
         pdo pdo_mysql pcntl \
-        soap tokenizer \
-        xml zip imagick sodium && \
+        soap xml zip \
+        imagick sodium && \
+    docker-php-ext-enable imagick redis xdebug && \
     apk del -f .build-deps && \
-    docker-php-source delete && \
-    rm -rf /tmp/* /var/cache/apk/* && \
     cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
 COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf
+COPY docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 CMD ["php-fpm", "--allow-to-run-as-root", "--nodaemonize"]
