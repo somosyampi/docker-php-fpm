@@ -5,12 +5,13 @@ WORKDIR /app
 ENV TZ=UTC
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 
-RUN apk add --no-cache --virtual .build-deps \
+RUN apk upgrade --no-cache && \
+    apk add --no-cache --update --virtual .build-deps \
         $PHPIZE_DEPS curl-dev freetype-dev \
         icu-dev imagemagick-dev libjpeg-turbo-dev \
         libpng-dev libsodium-dev libtool \
         libxml2-dev sqlite-dev libmcrypt-dev && \
-    apk add --no-cache \
+    apk add --no-cache --update  \
         --repository http://dl-3.alpinelinux.org/alpine/edge/testing \
         # --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
         --allow-untrusted \
