@@ -5,7 +5,7 @@ WORKDIR /app
 ENV TZ=UTC
 
 RUN apk upgrade --no-cache && \
-    apk add --no-cache --virtual .build-deps \
+    apk add --no-cache --update --virtual .build-deps \
         $PHPIZE_DEPS curl-dev freetype-dev \
         icu-dev imagemagick-dev libjpeg-turbo-dev \
         libpng-dev libsodium-dev libtool \
@@ -15,7 +15,7 @@ RUN apk upgrade --no-cache && \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick  && \
+    pecl install imagick && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
     git clone \
