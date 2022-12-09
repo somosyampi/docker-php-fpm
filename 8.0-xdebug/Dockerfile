@@ -5,7 +5,7 @@ WORKDIR /app
 ENV TZ=UTC
 
 RUN apk add --no-cache --virtual .build-deps \
-        $PHPIZE_DEPS curl-dev freetype-dev \
+        $PHPIZE_DEPS linux-headers curl-dev freetype-dev \
         icu-dev imagemagick-dev libjpeg-turbo-dev \
         libpng-dev libsodium-dev libtool \
         libxml2-dev sqlite-dev && \
