@@ -31,3 +31,9 @@ jobs:
         run: |
           docker image inspect somosyampi/docker-php-fpm:${{ matrix.image }}-test
           docker run --rm somosyampi/docker-php-fpm:${{ matrix.image }}-test php -i
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v2
+        with:
+          image: somosyampi/docker-php-fpm:${{ matrix.image }}-test
+          annotations: true
