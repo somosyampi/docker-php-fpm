@@ -14,7 +14,7 @@ RUN apk add --no-cache --virtual .build-deps \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick xdebug && \
+    pecl install imagick xdebug-3.1.6 && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
     docker-php-ext-configure gd \
