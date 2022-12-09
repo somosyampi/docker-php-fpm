@@ -14,13 +14,13 @@ RUN apk add --no-cache --virtual .build-deps \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick mongodb xdebug && \
+    pecl install imagick xdebug && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/lib \
         --with-freetype=/usr/include/freetype2 && \
-    docker-php-ext-enable imagick mongodb redis xdebug && \
+    docker-php-ext-enable imagick redis xdebug && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd iconv intl mysqli \
