@@ -13,6 +13,9 @@ jobs:
         platform: ['linux/amd64']
     steps:
       -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       -
@@ -37,3 +40,4 @@ jobs:
         with:
           image: somosyampi/docker-php-fpm:${{ matrix.image }}-test
           annotations: true
+          dockerfile: ./${{ matrix.image }}/Dockerfile
