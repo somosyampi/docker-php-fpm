@@ -7,7 +7,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
     apt-get update && apt-get install -y gnupg zip unzip git && mkdir -p ~/.gnupg && \
     echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu bionic main" > /etc/apt/sources.list.d/ppa_ondrej_php.list && \
     apt-key adv --homedir ~/.gnupg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E5267A6C && \
-    apt-get update && apt-get install -y \
+    apt-get update && apt-get upgrade -y && apt-get install -y \
         php5.6-fpm php5.6-cli php5.6-mcrypt \
         php5.6-sqlite3 php5.6-gd \
         php5.6-curl php5.6-imap php5.6-mysql \
