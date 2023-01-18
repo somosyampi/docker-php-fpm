@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['5.6', '7.1', '7.1-xdebug', '7.2', '7.2-xdebug', '7.3', '7.4', '7.4-xdebug', '8.0', '8.0-xdebug', '8.0-prod', '8.1', '8.1-xdebug', '8.1-prod']
+        image: ['5.6', '7.1', '7.1-xdebug', '7.2', '7.2-xdebug', '7.3', '7.4', '7.4-xdebug', '8.0', '8.0-xdebug', '8.0-prod', '8.1', '8.1-xdebug', '8.1-prod', '8.2', '8.2-xdebug', '8.2-prod']
         platform: ['linux/amd64', 'linux/arm64']
     steps:
       -
