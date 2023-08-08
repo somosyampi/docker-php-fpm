@@ -21,7 +21,10 @@ jobs:
       platform: ${{ matrix.platform }}
   docker-vapor:
     uses: ./.github/workflows/template-build-test.yml
+    strategy:
+      matrix:
+        image: ['7.4-vapor', '8.0-vapor', '8.1-vapor', '8.2-vapor', '8.2-vapor-arm']
     with:
-      image: '8.2-vapor'
-      platform: 'linux/arm64'
-      build-args: '__VAPOR_RUNTIME=docker-arm'
+      image: ${{ matrix.image }}
+      platform: ${{ contains(matrix.image, 'arm')  && 'linux/arm64' || 'linux/amd64' }}
+      build-args: ${{ contains(matrix.image, 'arm')  && '__VAPOR_RUNTIME=docker-arm' || '' }}
