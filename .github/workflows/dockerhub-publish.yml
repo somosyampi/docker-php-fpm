@@ -1,0 +1,27 @@
+name: Publish Docker multiplatform image
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  docker:
+    uses: ./.github/workflows/template-publish.yml
+    secrets: inherit
+    strategy:
+      matrix:
+        image: ['7.1', '7.1-xdebug', '7.2', '7.2-xdebug', '7.3', '7.4', '7.4-xdebug', '8.0', '8.0-xdebug', '8.0-prod', '8.1', '8.1-xdebug', '8.1-prod', '8.2', '8.2-xdebug', '8.2-prod']
+    with:
+      image: ${{ matrix.image }}
+      platform: 'linux/amd64,linux/arm64'
+  docker-vapor:
+    uses: ./.github/workflows/template-publish.yml
+    secrets: inherit
+    strategy:
+      matrix:
+        image: ['7.4-vapor', '8.0-vapor', '8.1-vapor', '8.2-vapor', '8.2-vapor-arm']
+    with:
+      image: ${{ matrix.image }}
+      platform: ${{ contains(matrix.image, 'arm')  && 'linux/arm64' || 'linux/amd64' }}
+      build-args: ${{ contains(matrix.image, 'arm')  && '__VAPOR_RUNTIME=docker-arm' || '' }}

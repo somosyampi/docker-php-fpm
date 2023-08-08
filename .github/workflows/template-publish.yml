@@ -1,14 +1,22 @@
 name: Publish Docker multiplatform image
+
 on:
-  push:
-    branches:
-      - 'master'
+  workflow_call:
+    inputs:
+      platform:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      build-args:
+        required: false
+        default: ''
+        type: string
+
 jobs:
   docker:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: ['5.6', '7.1', '7.1-xdebug', '7.2', '7.2-xdebug', '7.3', '7.4', '7.4-xdebug', '8.0', '8.0-xdebug', '8.0-prod', '8.1', '8.1-xdebug', '8.1-prod', '8.2', '8.2-xdebug', '8.2-prod']
     steps:
       -
         name: Set up QEMU
@@ -26,7 +34,8 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}:${{ matrix.image }}"
-          platforms: linux/amd64,linux/arm64
+          context: "{{defaultContext}}:${{ inputs.image }}"
+          platforms: "${{ inputs.platform }}"
+          build-args: "${{ inputs.build-args }}"
           push: true
-          tags: somosyampi/docker-php-fpm:${{ matrix.image }}
+          tags: somosyampi/docker-php-fpm:${{ inputs.image }}
