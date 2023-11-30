@@ -1,26 +1,23 @@
-name: Build and test Docker multiplatform images
+name: Publish Docker multiplatform image
 
 on:
   push:
     branches:
-      - '**'
-      - '!master'
-    paths:
-      - '!.github/workflows/*'
-  pull_request:
+      - 'master'
 
 jobs:
   docker:
-    uses: ./.github/workflows/template-build-test.yml
+    uses: ./.github/workflows/template-publish.yml
+    secrets: inherit
     strategy:
       matrix:
         image: ['7.1', '7.1-xdebug', '7.2', '7.2-xdebug', '7.3', '7.4', '7.4-xdebug', '8.0', '8.0-xdebug', '8.0-prod', '8.1', '8.1-xdebug', '8.1-prod', '8.2', '8.2-xdebug', '8.2-prod']
-        platform: ['linux/amd64', 'linux/arm64']
     with:
       image: ${{ matrix.image }}
-      platform: ${{ matrix.platform }}
+      platform: 'linux/amd64,linux/arm64'
   docker-vapor:
-    uses: ./.github/workflows/template-build-test.yml
+    uses: ./.github/workflows/template-publish.yml
+    secrets: inherit
     strategy:
       matrix:
         image: ['7.4-vapor', '8.0-vapor', '8.1-vapor', '8.2-vapor', '8.2-vapor-arm']
