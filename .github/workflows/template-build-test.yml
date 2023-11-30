@@ -1,0 +1,50 @@
+name: Build and test Docker multiplatform images
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      build-args:
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build image
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:${{ inputs.image }}"
+          platforms: "${{ inputs.platform }}"
+          build-args: "${{ inputs.build-args }}"
+          load: true
+          tags: somosyampi/docker-php-fpm:${{ inputs.image }}-test
+      -
+        name: Test image
+        run: |
+          docker image inspect somosyampi/docker-php-fpm:${{ inputs.image }}-test
+          docker run --rm somosyampi/docker-php-fpm:${{ inputs.image }}-test php -i
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v2
+        with:
+          image: somosyampi/docker-php-fpm:${{ inputs.image }}-test
+          annotations: true
+          dockerfile: ./${{ inputs.image }}/Dockerfile
