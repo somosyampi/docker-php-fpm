@@ -15,6 +15,7 @@ RUN apk upgrade --no-cache && \
         gnu-libiconv imagemagick libsodium \
         libgomp libintl libzip-dev \
         icu shadow && \
+    pecl install xdebug && \
     pecl install -o -f redis && \
     git clone \
             https://github.com/Imagick/imagick.git \
