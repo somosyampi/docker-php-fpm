@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.3-fpm-alpine
 
 WORKDIR /app
 
@@ -9,12 +9,13 @@ RUN apk upgrade --no-cache && \
         $PHPIZE_DEPS curl-dev freetype-dev \
         icu-dev imagemagick-dev libjpeg-turbo-dev \
         libpng-dev libsodium-dev libtool \
-        libxml2-dev sqlite-dev && \
+        libxml2-dev sqlite-dev linux-headers && \
     apk add --no-cache --update \
         bind-tools curl git gnu-libiconv \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
+    pecl install xdebug && \
     pecl install -o -f redis && \
     git clone \
             https://github.com/Imagick/imagick.git \
@@ -28,9 +29,8 @@ RUN apk upgrade --no-cache && \
         pdo pdo_mysql pcntl \
         soap xml zip \
         imagick sodium && \
-    docker-php-ext-enable imagick redis && \
+    docker-php-ext-enable imagick redis xdebug && \
     apk del -f .build-deps && \
-    docker-php-source delete && \
     rm -rf /tmp/* /var/cache/apk/* && \
     cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
 
@@ -38,5 +38,6 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
 COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf
+COPY docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 CMD ["php-fpm", "--allow-to-run-as-root", "--nodaemonize"]
