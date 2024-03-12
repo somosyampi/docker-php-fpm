@@ -16,7 +16,6 @@ RUN apk upgrade --no-cache && \
         libintl libzip-dev \
         icu shadow && \
     pecl install -o -f redis && \
-    pecl install -f libsodium && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \

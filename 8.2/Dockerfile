@@ -15,22 +15,20 @@ RUN apk upgrade --no-cache && \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick && \
     pecl install -o -f redis && \
-    pecl install -f libsodium && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/lib \
         --with-freetype=/usr/include/freetype2 && \
-    docker-php-ext-enable imagick redis && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd intl mysqli \
         pdo pdo_mysql pcntl \
         soap xml zip \
         imagick sodium && \
+    docker-php-ext-enable imagick redis && \
     apk del -f .build-deps && \
     docker-php-source delete && \
     rm -rf /tmp/* /var/cache/apk/* && \

@@ -11,13 +11,12 @@ RUN apk upgrade --no-cache && \
         libpng-dev libsodium-dev libtool \
         libxml2-dev sqlite-dev linux-headers && \
     apk add --no-cache --update \
-        bind-tools curl git \
-        gnu-libiconv imagemagick libsodium \
-        libgomp libintl libzip-dev \
+        bind-tools curl git gnu-libiconv \
+        imagemagick libsodium libgomp \
+        libintl libzip-dev \
         icu shadow && \
     pecl install xdebug && \
     pecl install -o -f redis && \
-    pecl install -f libsodium && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \
@@ -32,6 +31,7 @@ RUN apk upgrade --no-cache && \
         imagick sodium && \
     docker-php-ext-enable imagick redis xdebug && \
     apk del -f .build-deps && \
+    rm -rf /tmp/* /var/cache/apk/* && \
     cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
