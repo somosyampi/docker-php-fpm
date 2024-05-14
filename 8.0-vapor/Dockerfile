@@ -4,7 +4,9 @@ ARG NEW_RELIC_ENABLED=true
 
 ENV NEW_RELIC_ENABLED=$NEW_RELIC_ENABLED
 
-RUN cd ~ && \
+RUN apk upgrade --no-cache && \
+    rm -rf /tmp/* /var/cache/apk/* && \
+    cd ~ && \
     export NEWRELIC_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n "s/.*>\(.*linux-musl\).tar.gz<.*/\1/p")" && \
     curl -sS "https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz" | gzip -dc | tar xf - && \
     cd "${NEWRELIC_VERSION}" && \
