@@ -1,4 +1,4 @@
-FROM laravelphp/vapor:php80
+FROM laravelphp/vapor:php83
 
 ARG NEW_RELIC_ENABLED=true
 
