@@ -7,13 +7,13 @@ ENV TZ=UTC
 RUN apk upgrade --no-cache && \
     apk add --no-cache --update --virtual .build-deps \
         $PHPIZE_DEPS curl-dev freetype-dev \
-        icu-dev imagemagick-dev libjpeg-turbo-dev \
+        icu-dev imagemagick-dev \
         libpng-dev libsodium-dev libtool \
         libxml2-dev sqlite-dev linux-headers && \
     apk add --no-cache --update \
         bind-tools curl git gnu-libiconv \
         imagemagick libsodium libgomp \
-        libintl libzip-dev \
+        libintl libzip-dev libjpeg-turbo-dev \
         icu shadow && \
     pecl install xdebug && \
     pecl install -o -f redis && \
