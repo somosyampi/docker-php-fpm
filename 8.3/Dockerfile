@@ -7,13 +7,13 @@ ENV TZ=UTC
 RUN apk upgrade --no-cache && \
     apk add --no-cache --update --virtual .build-deps \
         $PHPIZE_DEPS curl-dev freetype-dev \
-        icu-dev imagemagick-dev libjpeg-turbo-dev \
+        icu-dev imagemagick-dev \
         libpng-dev libsodium-dev libtool \
         libxml2-dev sqlite-dev && \
     apk add --no-cache --update \
         bind-tools curl git gnu-libiconv \
         imagemagick libsodium libgomp \
-        libintl libzip-dev \
+        libintl libzip-dev libjpeg-turbo-dev \
         icu shadow && \
     pecl install -o -f redis && \
     git clone \
@@ -28,7 +28,7 @@ RUN apk upgrade --no-cache && \
         pdo pdo_mysql pcntl \
         soap xml zip \
         imagick sodium && \
-    docker-php-ext-enable imagick redis && \
+    docker-php-ext-enable imagick redis gd && \
     apk del -f .build-deps && \
     docker-php-source delete && \
     rm -rf /tmp/* /var/cache/apk/* && \
