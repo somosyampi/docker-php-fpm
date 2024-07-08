@@ -42,5 +42,5 @@ RUN apk upgrade --no-cache && \
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
-COPY yampi.ini /usr/local/php/conf.d/zz-yampi.ini
-COPY opcache.ini /usr/local/php/conf.d/05-opcache-recommended.ini
+COPY yampi.ini /usr/local/etc/php/conf.d/zz-yampi.ini
+COPY opcache.ini /usr/local/etc/php/conf.d/zz-opcache-recommended.ini
