@@ -14,7 +14,7 @@ RUN apk upgrade --no-cache && \
         bind-tools curl git gnu-libiconv \
         imagemagick libsodium libgomp \
         libintl libzip-dev libjpeg-turbo-dev \
-        icu shadow && \
+        icu shadow gmp-dev && \
     pecl install -o -f redis && \
     git clone \
             https://github.com/Imagick/imagick.git \
@@ -27,7 +27,7 @@ RUN apk upgrade --no-cache && \
         gd intl mysqli \
         pdo pdo_mysql pcntl \
         soap xml zip \
-        imagick sodium && \
+        imagick sodium gmp && \
     docker-php-ext-enable imagick redis gd && \
     apk del -f .build-deps && \
     docker-php-source delete && \
