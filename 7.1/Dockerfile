@@ -19,6 +19,8 @@ RUN apk upgrade --no-cache && \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow libmcrypt && \
+    pear update-channels && \
+    pecl update-channels && \
     pecl install imagick && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
