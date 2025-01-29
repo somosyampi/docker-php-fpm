@@ -24,13 +24,13 @@ RUN apk upgrade --no-cache && \
         imagemagick libsodium libgomp \
         libintl libzip-dev \
         icu shadow && \
-    pecl install imagick && \
+    pecl install imagick timezonedb && \
     pecl install -o -f redis && \
     pecl install -f libsodium && \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/lib \
         --with-freetype=/usr/include/freetype2 && \
-    docker-php-ext-enable imagick redis opcache && \
+    docker-php-ext-enable imagick redis opcache timezonedb && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd iconv intl mysqli \
