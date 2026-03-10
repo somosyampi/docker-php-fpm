@@ -50,9 +50,7 @@ RUN apk upgrade --no-cache && \
     cd .. && \
     unset NEWRELIC_VERSION
 
-COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer
-
-RUN composer global require hirak/prestissimo
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini

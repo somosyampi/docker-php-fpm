@@ -20,10 +20,11 @@ RUN apk upgrade --no-cache && \
     pecl install imagick && \
     pecl install -o -f redis-5.3.7 && \
     pecl install -f libsodium && \
+    pecl install protobuf-3.24.4 && \
     docker-php-ext-configure gd \
         --with-jpeg-dir=/usr/lib \
         --with-freetype-dir=/usr/include/freetype2 && \
-    docker-php-ext-enable imagick redis && \
+    docker-php-ext-enable imagick redis protobuf && \
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd iconv intl mysqli \

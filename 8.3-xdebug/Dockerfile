@@ -17,6 +17,7 @@ RUN apk upgrade --no-cache && \
         icu shadow gmp-dev && \
     pecl install xdebug && \
     pecl install -o -f redis && \
+    pecl install protobuf && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \
@@ -29,7 +30,7 @@ RUN apk upgrade --no-cache && \
         pdo pdo_mysql pcntl \
         soap xml zip \
         imagick sodium gmp && \
-    docker-php-ext-enable imagick redis xdebug && \
+    docker-php-ext-enable imagick redis xdebug protobuf && \
     apk del -f .build-deps && \
     rm -rf /tmp/* /var/cache/apk/* && \
     cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
