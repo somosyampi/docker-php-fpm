@@ -35,7 +35,7 @@ RUN apk upgrade --no-cache && \
     cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
 
 COPY --from=composer:1 /usr/bin/composer /usr/local/bin/composer
-RUN composer global require hirak/prestissimo
+RUN composer global require hirak/prestissimo:0.3.10
 
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
 COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf
