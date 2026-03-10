@@ -39,3 +39,5 @@ jobs:
           build-args: "${{ inputs.build-args }}"
           push: true
           tags: somosyampi/docker-php-fpm:${{ inputs.image }}
+          cache-from: type=gha,scope=${{ inputs.image }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.image }}

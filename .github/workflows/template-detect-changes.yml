@@ -1,0 +1,61 @@
+name: Detect changed images
+
+on:
+  workflow_call:
+    inputs:
+      base-ref:
+        required: true
+        type: string
+    outputs:
+      images:
+        value: ${{ jobs.detect.outputs.images }}
+      vapor-images:
+        value: ${{ jobs.detect.outputs.vapor-images }}
+      has-images:
+        value: ${{ jobs.detect.outputs.has-images }}
+      has-vapor-images:
+        value: ${{ jobs.detect.outputs.has-vapor-images }}
+
+jobs:
+  detect:
+    runs-on: ubuntu-22.04
+    outputs:
+      images: ${{ steps.changes.outputs.images }}
+      vapor-images: ${{ steps.changes.outputs.vapor-images }}
+      has-images: ${{ steps.changes.outputs.has-images }}
+      has-vapor-images: ${{ steps.changes.outputs.has-vapor-images }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: changes
+        run: |
+          CHANGED_DIRS=$(git diff --name-only ${{ inputs.base-ref }}...HEAD | cut -d'/' -f1 | sort -u)
+
+          IMAGES=()
+          VAPOR_IMAGES=()
+          for dir in $CHANGED_DIRS; do
+            if [[ -f "$dir/Dockerfile" ]]; then
+              if [[ "$dir" == *vapor* ]]; then
+                VAPOR_IMAGES+=("\"$dir\"")
+              else
+                IMAGES+=("\"$dir\"")
+              fi
+            fi
+          done
+
+          if [ ${#IMAGES[@]} -gt 0 ]; then
+            echo "images=[$(IFS=,; echo "${IMAGES[*]}")]" >> $GITHUB_OUTPUT
+            echo "has-images=true" >> $GITHUB_OUTPUT
+          else
+            echo "images=[]" >> $GITHUB_OUTPUT
+            echo "has-images=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [ ${#VAPOR_IMAGES[@]} -gt 0 ]; then
+            echo "vapor-images=[$(IFS=,; echo "${VAPOR_IMAGES[*]}")]" >> $GITHUB_OUTPUT
+            echo "has-vapor-images=true" >> $GITHUB_OUTPUT
+          else
+            echo "vapor-images=[]" >> $GITHUB_OUTPUT
+            echo "has-vapor-images=false" >> $GITHUB_OUTPUT
+          fi
