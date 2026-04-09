@@ -16,10 +16,9 @@ jobs:
     strategy:
       matrix:
         image: ${{ fromJson(needs.detect-changes.outputs.images) }}
-        platform: ['linux/amd64', 'linux/arm64']
     with:
       image: ${{ matrix.image }}
-      platform: ${{ matrix.platform }}
+      platform: 'linux/amd64,linux/arm64'
 
   docker-vapor:
     needs: detect-changes

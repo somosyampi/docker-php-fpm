@@ -35,6 +35,7 @@ RUN apk upgrade --no-cache && \
     rm -rf /tmp/* /var/cache/apk/* && \
     cp "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini"
 
+
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
