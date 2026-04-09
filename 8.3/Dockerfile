@@ -16,7 +16,7 @@ RUN apk upgrade --no-cache && \
         libintl libzip-dev libjpeg-turbo-dev \
         icu shadow gmp-dev && \
     pecl install -o -f redis && \
-    pecl install protobuf && \
+    pecl install protobuf-4.33.6 && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \
