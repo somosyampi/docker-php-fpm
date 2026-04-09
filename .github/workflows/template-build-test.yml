@@ -36,8 +36,8 @@ jobs:
           build-args: "${{ inputs.build-args }}"
           load: true
           tags: somosyampi/docker-php-fpm:${{ inputs.image }}-test
-          cache-from: type=gha,scope=${{ inputs.image }}-${{ inputs.platform }}
-          cache-to: type=gha,mode=max,scope=${{ inputs.image }}-${{ inputs.platform }}
+          cache-from: type=gha,scope="${{ inputs.image }}-${{ inputs.platform }}"
+          cache-to: type=gha,mode=max,scope="${{ inputs.image }}-${{ inputs.platform }}"
       -
         name: Test image
         run: |
