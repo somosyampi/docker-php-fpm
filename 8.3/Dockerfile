@@ -16,7 +16,6 @@ RUN apk upgrade --no-cache && \
         libintl libzip-dev libjpeg-turbo-dev \
         icu shadow gmp-dev && \
     pecl install -o -f redis && \
-    pecl install protobuf-4.33.6 && \
     git clone \
             https://github.com/Imagick/imagick.git \
             /usr/src/php/ext/imagick && \
@@ -29,7 +28,7 @@ RUN apk upgrade --no-cache && \
         pdo pdo_mysql pcntl \
         soap xml zip \
         imagick sodium gmp && \
-    docker-php-ext-enable imagick redis gd protobuf && \
+    docker-php-ext-enable imagick redis gd && \
     apk del -f .build-deps && \
     docker-php-source delete && \
     rm -rf /tmp/* /var/cache/apk/* && \
