@@ -13,6 +13,9 @@ ENV PHP_OPCACHE_MAX_ACCELERATED_FILES=10000
 ARG NEW_RELIC_ENABLED=true
 ENV NEW_RELIC_ENABLED=$NEW_RELIC_ENABLED
 
+ARG HORIZON_ARGS=""
+ENV HORIZON_ARGS=$HORIZON_ARGS
+
 RUN apk upgrade --no-cache && \
     apk add --no-cache --update --virtual .build-deps \
         $PHPIZE_DEPS curl-dev freetype-dev \
@@ -57,5 +60,7 @@ COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
 COPY opcache.ini /usr/local/etc/php/conf.d/zz-opcache-recommended.ini
 COPY newrelic.ini /usr/local/etc/php/conf.d/zz-newrelic.ini
+COPY --chmod=755 start-fpm.sh /usr/local/bin/start-fpm
+COPY --chmod=755 start-horizon.sh /usr/local/bin/start-horizon
 
-CMD ["php-fpm", "--allow-to-run-as-root", "--nodaemonize"]
+CMD ["start-fpm"]
