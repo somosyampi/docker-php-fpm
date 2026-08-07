@@ -22,12 +22,11 @@ RUN apk upgrade --no-cache && \
     docker-php-ext-configure gd \
         --with-jpeg=/usr/lib \
         --with-freetype=/usr/include/freetype2 && \
-    docker-php-ext-configure opcache --enable-opcache &&\
     docker-php-ext-install -j$(nproc) \
         bcmath curl exif \
         gd intl mysqli \
         pdo pdo_mysql pcntl \
-        soap opcache xml \
+        soap xml \
         zip imagick sodium gmp && \
     docker-php-ext-enable imagick redis && \
     apk del -f .build-deps && \
