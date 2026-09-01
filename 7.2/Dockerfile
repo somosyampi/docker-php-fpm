@@ -18,7 +18,7 @@ RUN apk upgrade --no-cache && \
     pear update-channels && \
     pecl update-channels && \
     pecl install imagick && \
-    pecl install -o -f redis-6.0.2 && \
+    pecl install -o -f redis-5.3.7 && \
     pecl install -f libsodium && \
     docker-php-ext-configure gd \
         --with-jpeg-dir=/usr/lib \
