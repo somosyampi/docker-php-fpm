@@ -1,3 +1,4 @@
+# touch pra exercitar o CI novo (runners arm64 nativos + cache de registry); sem efeito na imagem
 FROM php:8.5-fpm-alpine
 
 WORKDIR /app
