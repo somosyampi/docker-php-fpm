@@ -13,6 +13,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.has-images == 'true'
     uses: ./.github/workflows/template-build-test.yml
+    secrets: inherit
     strategy:
       matrix:
         image: ${{ fromJson(needs.detect-changes.outputs.images) }}
@@ -25,6 +26,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.has-vapor-images == 'true'
     uses: ./.github/workflows/template-build-test.yml
+    secrets: inherit
     strategy:
       matrix:
         image: ${{ fromJson(needs.detect-changes.outputs.vapor-images) }}
