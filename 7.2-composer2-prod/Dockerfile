@@ -4,7 +4,7 @@ WORKDIR /app
 
 ENV TZ=UTC
 
-ENV PHP_MEMORY_LIMIT=256M
+ENV PHP_MEMORY_LIMIT=512M
 ENV PHP_UPLOAD_MAX_FILESIZE=10M
 ENV PHP_POST_MAX_SIZE=10M
 ENV PHP_OPCACHE_MEMORY_CONSUMPTION=256M
@@ -53,6 +53,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 COPY www.conf /usr/local/etc/php-fpm.d/zz-www.conf
 COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
+COPY yampi.ini /usr/local/etc/php/conf.d/zz-yampi.ini
 COPY opcache.ini /usr/local/etc/php/conf.d/zz-opcache-recommended.ini
 COPY newrelic.ini /usr/local/etc/php/conf.d/zz-newrelic.ini
 
