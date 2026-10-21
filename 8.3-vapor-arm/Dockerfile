@@ -15,3 +15,5 @@ RUN apk upgrade --no-cache && \
     unset NEWRELIC_VERSION
 
 COPY newrelic.ini /usr/local/etc/php/conf.d/xx-newrelic.ini
+
+COPY security.ini /usr/local/etc/php/conf.d/zz-security.ini
