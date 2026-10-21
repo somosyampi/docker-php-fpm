@@ -37,6 +37,7 @@ jobs:
           context: "{{defaultContext}}:${{ inputs.image }}"
           platforms: "${{ inputs.platform }}"
           build-args: "${{ inputs.build-args }}"
+          pull: true
           push: true
           tags: somosyampi/docker-php-fpm:${{ inputs.image }}
           cache-from: |

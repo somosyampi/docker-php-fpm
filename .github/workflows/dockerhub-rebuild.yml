@@ -1,0 +1,102 @@
+name: Rebuild Docker image
+run-name: Rebuild ${{ inputs.image }} by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Image to rebuild and publish from master'
+        required: true
+        type: choice
+        default: '8.3-vapor'
+        options:
+          - '7.2-composer2'
+          - '7.2-composer2-prod'
+          - '7.2-composer2-xdebug'
+          - '7.4-vapor'
+          - '8.0'
+          - '8.0-prod'
+          - '8.0-swoole'
+          - '8.0-vapor'
+          - '8.0-xdebug'
+          - '8.1'
+          - '8.1-prod'
+          - '8.1-swoole'
+          - '8.1-vapor'
+          - '8.1-xdebug'
+          - '8.2'
+          - '8.2-prod'
+          - '8.2-swoole'
+          - '8.2-vapor'
+          - '8.2-vapor-arm'
+          - '8.2-xdebug'
+          - '8.3'
+          - '8.3-prod'
+          - '8.3-swoole'
+          - '8.3-swoole-prod'
+          - '8.3-vapor'
+          - '8.3-vapor-arm'
+          - '8.3-xdebug'
+          - '8.4'
+          - '8.4-prod'
+          - '8.4-xdebug'
+          - '8.5'
+          - '8.5-prod'
+          - '8.5-xdebug'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      platforms: ${{ steps.image.outputs.platforms }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select image platforms
+        id: image
+        env:
+          IMAGE: ${{ inputs.image }}
+        run: |
+          if [[ "$GITHUB_REF" != 'refs/heads/master' ]]; then
+            echo '::error::Manual rebuilds must run from master.'
+            exit 1
+          fi
+
+          if [[ ! "$IMAGE" =~ ^[0-9]+\.[0-9]+(-[a-z0-9]+)*$ ]] || [[ ! -f "$IMAGE/Dockerfile" ]]; then
+            echo '::error::The selected image does not have a valid Dockerfile.'
+            exit 1
+          fi
+
+          if [[ "$IMAGE" == *vapor-arm ]]; then
+            platforms='["linux/arm64"]'
+          elif [[ "$IMAGE" == *vapor* ]]; then
+            platforms='["linux/amd64"]'
+          else
+            platforms='["linux/amd64","linux/arm64"]'
+          fi
+
+          echo "platforms=$platforms" >> "$GITHUB_OUTPUT"
+
+  build-test:
+    needs: prepare
+    uses: ./.github/workflows/template-build-test.yml
+    secrets: inherit
+    strategy:
+      matrix:
+        platform: ${{ fromJson(needs.prepare.outputs.platforms) }}
+    with:
+      image: ${{ inputs.image }}
+      platform: ${{ matrix.platform }}
+      build-args: ${{ contains(inputs.image, 'vapor-arm') && '__VAPOR_RUNTIME=docker-arm' || '' }}
+
+  publish:
+    needs: [prepare, build-test]
+    uses: ./.github/workflows/template-publish.yml
+    secrets: inherit
+    with:
+      image: ${{ inputs.image }}
+      platform: ${{ join(fromJson(needs.prepare.outputs.platforms), ',') }}
+      build-args: ${{ contains(inputs.image, 'vapor-arm') && '__VAPOR_RUNTIME=docker-arm' || '' }}

@@ -37,6 +37,7 @@ jobs:
           context: "{{defaultContext}}:${{ inputs.image }}"
           platforms: "${{ inputs.platform }}"
           build-args: "${{ inputs.build-args }}"
+          pull: true
           load: true
           tags: somosyampi/docker-php-fpm:${{ inputs.image }}-test
           cache-from: type=registry,ref=somosyampi/docker-php-fpm:${{ inputs.image }}-buildcache-${{ inputs.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
