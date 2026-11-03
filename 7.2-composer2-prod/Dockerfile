@@ -1,3 +1,21 @@
+FROM php:7.2-fpm-alpine AS newrelic-arm64
+
+ARG TARGETARCH
+ARG NEWRELIC_ARM64_VERSION=12.12.0.41
+
+# O pacote oficial do agente New Relic só traz o binário aarch64 para PHP 8.0+.
+# Em arm64 o agente é compilado do código-fonte na versão fixada acima, e o
+# daemon vem do pacote oficial dessa mesma versão. Em amd64 este estágio não faz nada.
+RUN mkdir -p /out && \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        apk add --no-cache $PHPIZE_DEPS bash git pcre-dev protobuf-c-dev && \
+        git clone --depth 1 --branch "v${NEWRELIC_ARM64_VERSION}" \
+            https://github.com/newrelic/newrelic-php-agent.git /src && \
+        make -C /src -j"$(nproc)" agent OPTIMIZE=1 BUILD_NUMBER="${NEWRELIC_ARM64_VERSION##*.}" && \
+        cp /src/agent/modules/newrelic.so /out/newrelic.so && \
+        echo "${NEWRELIC_ARM64_VERSION}" > /out/VERSION; \
+    fi
+
 FROM php:7.2-fpm-alpine
 
 WORKDIR /app
@@ -13,7 +31,8 @@ ENV PHP_OPCACHE_MAX_ACCELERATED_FILES=10000
 ARG NEW_RELIC_ENABLED=true
 ENV NEW_RELIC_ENABLED=$NEW_RELIC_ENABLED
 
-RUN apk upgrade --no-cache && \
+RUN --mount=type=bind,from=newrelic-arm64,source=/out,target=/tmp/newrelic-arm64 \
+    apk upgrade --no-cache && \
     apk add --no-cache --update --virtual .build-deps \
         $PHPIZE_DEPS curl-dev freetype-dev \
         icu-dev imagemagick-dev libjpeg-turbo-dev \
@@ -42,12 +61,23 @@ RUN apk upgrade --no-cache && \
     apk del -f .build-deps && \
     cp "/usr/local/etc/php/php.ini-production" "/usr/local/etc/php/php.ini" && \
     cd ~ && \
-    export NEWRELIC_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n "s/.*>\(.*linux-musl\).tar.gz<.*/\1/p")" && \
-    curl -sS "https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz" | gzip -dc | tar xf - && \
+    if [ -f /tmp/newrelic-arm64/VERSION ]; then \
+        NEWRELIC_RELEASE="$(cat /tmp/newrelic-arm64/VERSION)" && \
+        export NEWRELIC_VERSION="newrelic-php5-${NEWRELIC_RELEASE}-linux-musl" && \
+        export NEWRELIC_URL="https://download.newrelic.com/php_agent/archive/${NEWRELIC_RELEASE}/${NEWRELIC_VERSION}.tar.gz"; \
+    else \
+        export NEWRELIC_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n "s/.*>\(.*linux-musl\).tar.gz<.*/\1/p")" && \
+        export NEWRELIC_URL="https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz"; \
+    fi && \
+    curl -fsS "${NEWRELIC_URL}" | gzip -dc | tar xf - && \
     cd "${NEWRELIC_VERSION}" && \
     NR_INSTALL_SILENT=true NR_INSTALL_USE_CP_NOT_LN=true ./newrelic-install install && \
+    if [ -f /tmp/newrelic-arm64/newrelic.so ]; then \
+        install -m 0755 /tmp/newrelic-arm64/newrelic.so "$(php-config --extension-dir)/newrelic.so" && \
+        cp scripts/newrelic.ini.template "${PHP_INI_DIR}/conf.d/newrelic.ini"; \
+    fi && \
     cd .. && \
-    unset NEWRELIC_VERSION
+    unset NEWRELIC_VERSION NEWRELIC_URL
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
@@ -56,5 +86,7 @@ COPY yampi.ini /usr/local/etc/php-fpm.d/zz-yampi.ini
 COPY yampi.ini /usr/local/etc/php/conf.d/zz-yampi.ini
 COPY opcache.ini /usr/local/etc/php/conf.d/zz-opcache-recommended.ini
 COPY newrelic.ini /usr/local/etc/php/conf.d/zz-newrelic.ini
+
+RUN php -d newrelic.enabled=0 -m | grep -qx newrelic
 
 CMD ["php-fpm", "--allow-to-run-as-root", "--nodaemonize"]
