@@ -1,6 +1,6 @@
 --- a/agent/php_user_instrument.c	2026-11-04 12:25:57
-+++ b/agent/php_user_instrument.c	2026-11-04 12:25:57
-@@ -815,11 +815,42 @@
++++ b/agent/php_user_instrument.c	2026-11-04 14:11:20
+@@ -815,8 +815,32 @@
  void nr_php_op_array_set_wraprec(zend_op_array* op_array,
                                   nruserfn_t* func TSRMLS_DC) {
    uintptr_t index;
@@ -8,13 +8,10 @@
 +  static int nr_wraprec_full_logged = 0;
  
    if (NULL == op_array || NULL == func) {
-     return;
-   }
- 
-+  /*
-+   * Patch: transactions re-wrap the same functions; reuse the slot already
-+   * stored for this process so the vector does not grow on every transaction.
-+   */
++    return;
++  }
++
++  /* Reuse this process's slot so the vector doesn't grow per transaction. */
 +  current = (uintptr_t)op_array->reserved[NR_PHP_PROCESS_GLOBALS(zend_offset)];
 +  if ((0 != current)
 +      && ((uint64_t)(current >> 16) == (uint64_t)NRPRG_SHARED(pid))
@@ -24,11 +21,7 @@
 +    return;
 +  }
 +
-+  /*
-+   * Patch: only 16 bits hold the index; past 0xffff it would spill into the
-+   * pid bits and resolve functions to the wrong wraprec. Leave the function
-+   * uninstrumented instead.
-+   */
++  /* The index has 16 bits; past 0xffff it would spill into the pid. */
 +  if (nr_vector_size(NRPRG_SHARED(user_function_wrappers)) >= 0xffff) {
 +    if (!nr_wraprec_full_logged) {
 +      nrl_warning(NRL_INSTRUMENT,
@@ -37,9 +30,6 @@
 +      nr_wraprec_full_logged = 1;
 +    }
 +    op_array->reserved[NR_PHP_PROCESS_GLOBALS(zend_offset)] = NULL;
-+    return;
-+  }
-+
-   if (!nr_vector_push_back(NRPRG_SHARED(user_function_wrappers), func)) {
      return;
    }
+ 

@@ -8,12 +8,7 @@ COPY newrelic-agent-wraprec-16bit.patch /nr-patch/newrelic-agent-wraprec-16bit.p
 # O pacote oficial do agente New Relic só traz o binário aarch64 para PHP 8.0+.
 # Em arm64 o agente é compilado do código-fonte na versão fixada acima, e o
 # daemon vem do pacote oficial dessa mesma versão. Em amd64 este estágio não faz nada.
-#
-# O patch corrige o caminho de PHP < 7.4 do agente: cada transação reempilha os
-# wrappers das funções instrumentadas e o índice guardado em 16 bits estoura num
-# worker CLI de longa duração (Horizon/queue:work), resolvendo funções pro wrapper
-# errado. O patch reaproveita o slot já gravado e, se o espaço acabar, deixa a
-# função sem instrumentação. O grep falha o build se o patch não tiver entrado.
+# O patch evita o estouro do índice de wraprec (16 bits) em worker CLI longo no PHP < 7.4.
 RUN mkdir -p /out && \
     if [ "$TARGETARCH" = "arm64" ]; then \
         apk add --no-cache $PHPIZE_DEPS bash git pcre-dev protobuf-c-dev && \
