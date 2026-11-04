@@ -46,7 +46,7 @@ RUN --mount=type=bind,from=newrelic-arm64,source=/out,target=/tmp/newrelic-arm64
     apk add --no-cache --update \
         bind-tools curl git gnu-libiconv \
         imagemagick libsodium libgomp \
-        libintl libzip-dev \
+        libintl libzip-dev pcre \
         icu shadow && \
     pear update-channels && \
     pecl update-channels && \

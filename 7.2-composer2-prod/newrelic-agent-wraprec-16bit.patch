@@ -1,11 +1,52 @@
 --- a/agent/php_user_instrument.c	2026-11-04 12:25:57
-+++ b/agent/php_user_instrument.c	2026-11-04 14:11:20
-@@ -815,8 +815,32 @@
++++ b/agent/php_user_instrument.c	2026-11-04 14:45:41
+@@ -495,7 +495,25 @@
+   return;
+ #endif
+ }
++
++#if ZEND_MODULE_API_NO < ZEND_7_4_X_API_NO
++/* The wraprec index has 16 bits; past 0xffff it would spill into the pid. */
++static int nr_php_wraprec_vector_full(void) {
++  static int logged = 0;
+ 
++  if (nr_vector_size(NRPRG_SHARED(user_function_wrappers)) < 0xffff) {
++    return 0;
++  }
++  if (!logged) {
++    nrl_warning(NRL_INSTRUMENT,
++                "wraprec index space exhausted; leaving functions "
++                "uninstrumented");
++    logged = 1;
++  }
++  return 1;
++}
++#endif
++
+ #define NR_PHP_UNKNOWN_FUNCTION_NAME "{unknown}"
+ nruserfn_t* nr_php_add_custom_tracer_callable(zend_function* func TSRMLS_DC) {
+   char* name = NULL;
+@@ -527,7 +545,15 @@
+                      name);
+     nr_free(name);
+     return wraprec;
++  }
++
++#if ZEND_MODULE_API_NO < ZEND_7_4_X_API_NO
++  /* A full vector can't store the slot: don't leak a wraprec per call. */
++  if (nr_php_wraprec_vector_full()) {
++    nr_free(name);
++    return NULL;
+   }
++#endif
+ 
+   wraprec = nr_php_user_wraprec_create();
+   wraprec->is_transient = true;
+@@ -815,11 +841,27 @@
  void nr_php_op_array_set_wraprec(zend_op_array* op_array,
                                   nruserfn_t* func TSRMLS_DC) {
    uintptr_t index;
 +  uintptr_t current;
-+  static int nr_wraprec_full_logged = 0;
  
    if (NULL == op_array || NULL == func) {
 +    return;
@@ -18,18 +59,14 @@
 +      && (func
 +          == (nruserfn_t*)nr_vector_get(NRPRG_SHARED(user_function_wrappers),
 +                                        current & 0xffff))) {
-+    return;
-+  }
-+
-+  /* The index has 16 bits; past 0xffff it would spill into the pid. */
-+  if (nr_vector_size(NRPRG_SHARED(user_function_wrappers)) >= 0xffff) {
-+    if (!nr_wraprec_full_logged) {
-+      nrl_warning(NRL_INSTRUMENT,
-+                  "wraprec index space exhausted; leaving functions "
-+                  "uninstrumented");
-+      nr_wraprec_full_logged = 1;
-+    }
-+    op_array->reserved[NR_PHP_PROCESS_GLOBALS(zend_offset)] = NULL;
      return;
    }
  
++  /* Keep whatever the slot holds: overwriting a valid one loses it. */
++  if (nr_php_wraprec_vector_full()) {
++    return;
++  }
++
+   if (!nr_vector_push_back(NRPRG_SHARED(user_function_wrappers), func)) {
+     return;
+   }
