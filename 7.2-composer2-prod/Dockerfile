@@ -1,26 +1,36 @@
+# Agente New Relic fixo nas duas arquiteturas: no bump, os três mudam juntos.
+ARG NEWRELIC_VERSION=12.12.0.41
+ARG NEWRELIC_COMMIT=cf77822cd783c43cf3f8bb2acc1caa22c49e23cb
+ARG NEWRELIC_SHA256=b93a0f11dc9a65ae8ca992dc8edd8db756591eccbdb74308f744840acde4e24f
+
 FROM php:7.2-fpm-alpine AS newrelic-arm64
 
 ARG TARGETARCH
-ARG NEWRELIC_ARM64_VERSION=12.12.0.41
+ARG NEWRELIC_VERSION
+ARG NEWRELIC_COMMIT
 
 COPY newrelic-agent-wraprec-16bit.patch /nr-patch/newrelic-agent-wraprec-16bit.patch
 
 # O pacote oficial do agente New Relic só traz o binário aarch64 para PHP 8.0+.
-# Em arm64 o agente é compilado do código-fonte na versão fixada acima, e o
+# Em arm64 o agente é compilado do código-fonte no commit fixado acima, e o
 # daemon vem do pacote oficial dessa mesma versão. Em amd64 este estágio não faz nada.
 # O patch evita o estouro do índice de wraprec (16 bits) em worker CLI longo no PHP < 7.4.
 RUN mkdir -p /out && \
     if [ "$TARGETARCH" = "arm64" ]; then \
         apk add --no-cache $PHPIZE_DEPS bash git pcre-dev protobuf-c-dev && \
-        git clone --depth 1 --branch "v${NEWRELIC_ARM64_VERSION}" \
-            https://github.com/newrelic/newrelic-php-agent.git /src && \
+        git init -q /src && \
+        git -C /src fetch -q --depth 1 https://github.com/newrelic/newrelic-php-agent.git "${NEWRELIC_COMMIT}" && \
+        git -C /src checkout -q FETCH_HEAD && \
+        test "$(cat /src/VERSION).${NEWRELIC_VERSION##*.}" = "${NEWRELIC_VERSION}" && \
         git -C /src apply /nr-patch/newrelic-agent-wraprec-16bit.patch && \
-        make -C /src -j"$(nproc)" agent OPTIMIZE=1 BUILD_NUMBER="${NEWRELIC_ARM64_VERSION##*.}" && \
-        cp /src/agent/modules/newrelic.so /out/newrelic.so && \
-        echo "${NEWRELIC_ARM64_VERSION}" > /out/VERSION; \
+        make -C /src -j"$(nproc)" agent OPTIMIZE=1 BUILD_NUMBER="${NEWRELIC_VERSION##*.}" && \
+        cp /src/agent/modules/newrelic.so /out/newrelic.so; \
     fi
 
 FROM php:7.2-fpm-alpine
+
+ARG NEWRELIC_VERSION
+ARG NEWRELIC_SHA256
 
 WORKDIR /app
 
@@ -65,16 +75,13 @@ RUN --mount=type=bind,from=newrelic-arm64,source=/out,target=/tmp/newrelic-arm64
     apk del -f .build-deps && \
     cp "/usr/local/etc/php/php.ini-production" "/usr/local/etc/php/php.ini" && \
     cd ~ && \
-    if [ -f /tmp/newrelic-arm64/VERSION ]; then \
-        NEWRELIC_RELEASE="$(cat /tmp/newrelic-arm64/VERSION)" && \
-        export NEWRELIC_VERSION="newrelic-php5-${NEWRELIC_RELEASE}-linux-musl" && \
-        export NEWRELIC_URL="https://download.newrelic.com/php_agent/archive/${NEWRELIC_RELEASE}/${NEWRELIC_VERSION}.tar.gz"; \
-    else \
-        export NEWRELIC_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n "s/.*>\(.*linux-musl\).tar.gz<.*/\1/p")" && \
-        export NEWRELIC_URL="https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz"; \
-    fi && \
-    curl -fsS "${NEWRELIC_URL}" | gzip -dc | tar xf - && \
-    cd "${NEWRELIC_VERSION}" && \
+    NEWRELIC_PKG="newrelic-php5-${NEWRELIC_VERSION}-linux-musl" && \
+    curl -fsS -o "${NEWRELIC_PKG}.tar.gz" \
+        "https://download.newrelic.com/php_agent/archive/${NEWRELIC_VERSION}/${NEWRELIC_PKG}.tar.gz" && \
+    echo "${NEWRELIC_SHA256}  ${NEWRELIC_PKG}.tar.gz" | sha256sum -c - && \
+    tar xzf "${NEWRELIC_PKG}.tar.gz" && \
+    rm -f "${NEWRELIC_PKG}.tar.gz" && \
+    cd "${NEWRELIC_PKG}" && \
     NR_INSTALL_SILENT=true NR_INSTALL_USE_CP_NOT_LN=true ./newrelic-install install && \
     if [ -f /tmp/newrelic-arm64/newrelic.so ]; then \
         install -m 0755 /tmp/newrelic-arm64/newrelic.so "$(php-config --extension-dir)/newrelic.so" && \
