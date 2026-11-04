@@ -15,7 +15,6 @@ RUN mkdir -p /out && \
         git clone --depth 1 --branch "v${NEWRELIC_ARM64_VERSION}" \
             https://github.com/newrelic/newrelic-php-agent.git /src && \
         git -C /src apply /nr-patch/newrelic-agent-wraprec-16bit.patch && \
-        grep -q "wraprec index space exhausted" /src/agent/php_user_instrument.c && \
         make -C /src -j"$(nproc)" agent OPTIMIZE=1 BUILD_NUMBER="${NEWRELIC_ARM64_VERSION##*.}" && \
         cp /src/agent/modules/newrelic.so /out/newrelic.so && \
         echo "${NEWRELIC_ARM64_VERSION}" > /out/VERSION; \
@@ -80,9 +79,7 @@ RUN --mount=type=bind,from=newrelic-arm64,source=/out,target=/tmp/newrelic-arm64
     if [ -f /tmp/newrelic-arm64/newrelic.so ]; then \
         install -m 0755 /tmp/newrelic-arm64/newrelic.so "$(php-config --extension-dir)/newrelic.so" && \
         cp scripts/newrelic.ini.template "${PHP_INI_DIR}/conf.d/newrelic.ini"; \
-    fi && \
-    cd .. && \
-    unset NEWRELIC_VERSION NEWRELIC_URL
+    fi
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
