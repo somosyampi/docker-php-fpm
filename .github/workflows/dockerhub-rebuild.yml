@@ -13,6 +13,8 @@ on:
           - '7.2-composer2'
           - '7.2-composer2-prod'
           - '7.2-composer2-xdebug'
+          - '7.4-composer2'
+          - '7.4-composer2-xdebug'
           - '7.4-vapor'
           - '8.0'
           - '8.0-prod'
