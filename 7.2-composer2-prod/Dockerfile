@@ -1,7 +1,12 @@
-# Agente New Relic fixo nas duas arquiteturas: no bump, os três mudam juntos.
+# Agente New Relic fixo por arquitetura: no bump, os ARGs de cada uma mudam juntos.
+# arm64: compilado do fonte com o patch do wraprec, daemon do pacote da mesma versão.
 ARG NEWRELIC_VERSION=12.12.0.41
 ARG NEWRELIC_COMMIT=cf77822cd783c43cf3f8bb2acc1caa22c49e23cb
 ARG NEWRELIC_SHA256=b93a0f11dc9a65ae8ca992dc8edd8db756591eccbdb74308f744840acde4e24f
+# amd64: binário oficial, sem o patch. A 12.12.0.41 oficial resolve funções para o
+# wrapper errado em worker CLI longo no PHP < 7.4, então o amd64 fica na 12.10.0.39.
+ARG NEWRELIC_AMD64_VERSION=12.10.0.39
+ARG NEWRELIC_AMD64_SHA256=2da47eb5135a548f2876e22d3e2fb097c696ea145e1cd7f67c96925084f614d2
 
 FROM php:7.2-fpm-alpine AS newrelic-arm64
 
@@ -29,8 +34,11 @@ RUN mkdir -p /out && \
 
 FROM php:7.2-fpm-alpine
 
+ARG TARGETARCH
 ARG NEWRELIC_VERSION
 ARG NEWRELIC_SHA256
+ARG NEWRELIC_AMD64_VERSION
+ARG NEWRELIC_AMD64_SHA256
 
 WORKDIR /app
 
@@ -75,6 +83,10 @@ RUN --mount=type=bind,from=newrelic-arm64,source=/out,target=/tmp/newrelic-arm64
     apk del -f .build-deps && \
     cp "/usr/local/etc/php/php.ini-production" "/usr/local/etc/php/php.ini" && \
     cd ~ && \
+    if [ "$TARGETARCH" = "amd64" ]; then \
+        NEWRELIC_VERSION="${NEWRELIC_AMD64_VERSION}" && \
+        NEWRELIC_SHA256="${NEWRELIC_AMD64_SHA256}"; \
+    fi && \
     NEWRELIC_PKG="newrelic-php5-${NEWRELIC_VERSION}-linux-musl" && \
     curl -fsS -o "${NEWRELIC_PKG}.tar.gz" \
         "https://download.newrelic.com/php_agent/archive/${NEWRELIC_VERSION}/${NEWRELIC_PKG}.tar.gz" && \
@@ -96,6 +108,8 @@ COPY yampi.ini /usr/local/etc/php/conf.d/zz-yampi.ini
 COPY opcache.ini /usr/local/etc/php/conf.d/zz-opcache-recommended.ini
 COPY newrelic.ini /usr/local/etc/php/conf.d/zz-newrelic.ini
 
-RUN php -d newrelic.enabled=0 -m | grep -qx newrelic
+RUN php -d newrelic.enabled=0 -m | grep -qx newrelic && \
+    if [ "$TARGETARCH" = "amd64" ]; then expected="${NEWRELIC_AMD64_VERSION}"; else expected="${NEWRELIC_VERSION}"; fi && \
+    test "$(php -d newrelic.enabled=0 -r 'echo phpversion("newrelic");')" = "${expected}"
 
 CMD ["php-fpm", "--allow-to-run-as-root", "--nodaemonize"]
